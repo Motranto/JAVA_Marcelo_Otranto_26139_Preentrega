@@ -109,8 +109,10 @@ public class App {
         double precio      = leerDoubleNoNegativo(sc, "Ingrese el precio del artículo     : ");
         String categoria   = leerTextoNoVacio    (sc, "Ingrese la categoría del artículo  : ");
 
+        String nombreMayuscula = nombre.trim().toUpperCase();
+        String categoriaMinuscula = categoria.trim().toLowerCase();
         // Creamos un objeto Articulo usando el constructor.
-        Articulo articulo = new Articulo(sku, ean, nombre, descripcion, precio, categoria);
+        Articulo articulo = new Articulo(sku, ean, nombreMayuscula, descripcion, precio, categoriaMinuscula);
 
         // Guardamos el objeto en la lista.
         articulos.add(articulo);
@@ -205,12 +207,15 @@ public class App {
         double nuevoPrecio      = leerDoubleNoNegativo(sc, "Ingrese el precio del artículo     : ");
         String nuevaCategoria   = leerTextoNoVacio    (sc, "Ingrese la categoría del artículo  : ");
 
+        String nuevoNombreMayuscula = nuevoNombre.trim().toUpperCase();
+        String nuevaCategoriaMinuscula = nuevaCategoria.trim().toLowerCase();
+
         // Usamos setters para modificar el estado del objeto.
         articulo.setEan(nuevoEan);
-        articulo.setNombre(nuevoNombre);
+        articulo.setNombre(nuevoNombreMayuscula);
         articulo.setDescripcion(nuevaDescripcion);
         articulo.setPrecio(nuevoPrecio);
-        articulo.setCategoria(nuevaCategoria);
+        articulo.setCategoria(nuevaCategoriaMinuscula);
 
         System.out.println("Artículo modificado correctamente.");
     }
