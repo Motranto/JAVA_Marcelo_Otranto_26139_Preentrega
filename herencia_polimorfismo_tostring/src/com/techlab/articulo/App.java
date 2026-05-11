@@ -12,6 +12,7 @@ import com.techlab.articulo.model.ArticuloElectronico;
 import com.techlab.articulo.model.ArticuloAlimenticio;
 import com.techlab.articulo.model.ArticuloTextil;
 import com.techlab.articulo.model.Categoria;
+import com.techlab.articulo.model.Color;
 
 /* CLASE APP 
  * Clase principal de la aplicacion
@@ -30,6 +31,9 @@ public class App {
         ArrayList<Categoria> categorias = new ArrayList<>();
         precargarCategorias(categorias);
 
+        ArrayList<Color> colores = new ArrayList<>();
+        precargarColores(colores);
+
         // Variable opción del menú.
         int opcion;
 
@@ -45,6 +49,7 @@ public class App {
             System.out.println("5 - Eliminar artículo por SKU");
             System.out.println("6 - Listar todos los artículos");
             System.out.println("7 - Listar categorias");
+            System.out.println("8 - Listar colores");
             System.out.println("------------------------------------------");
             System.out.println("0 - Salir");
             System.out.println("==========================================");
@@ -53,7 +58,7 @@ public class App {
 
             switch (opcion) {
                 case 1:
-                    ingresarArticulo(sc, articulos, categorias);
+                    ingresarArticulo(sc, articulos, categorias, colores);
                     break;
                 case 2:
                     consultarArticuloSku(sc, articulos);
@@ -62,7 +67,7 @@ public class App {
                     consultarArticuloEan(sc, articulos);
                     break;
                 case 4:
-                    modificarArticuloSku(sc, articulos, categorias);
+                    modificarArticuloSku(sc, articulos, categorias, colores);
                     break;
                 case 5:
                     eliminarArticuloSku(sc, articulos);
@@ -72,6 +77,9 @@ public class App {
                     break;
                 case 7:
                     listarCategorias(categorias);
+                    break;
+                case 8:
+                    listarColores(colores);
                     break;
                 case 0:
                     System.out.println("\nSaliendo del sistema. ¡Hasta luego!");
@@ -100,6 +108,20 @@ public class App {
         categorias.add(new Categoria(6, "Pantalones", "Artículos Pantalones"));
     }
 
+    /*
+     * MÉTODO: precargarColores
+     * --------------------------------------------------
+     * Seguimos usando colores precargadas para no sumar todavía
+     * el CRUD de colores.
+     */
+        public static void precargarColores(ArrayList<Color> colores) {
+            colores.add(new Color(1, "Azul"));
+            colores.add(new Color(2, "Rojo"));
+            colores.add(new Color(3, "Negro"));
+            colores.add(new Color(4, "Amarillo"));
+            colores.add(new Color(5, "Blanco"));
+            colores.add(new Color(6, "Verde"));
+        }
 
     /*
      * MÉTODO: ingresarArticulo
@@ -119,10 +141,10 @@ public class App {
      * y los de la clase hija
      *      GARANTIA MESES (electronico)
      *      DIAS VENCIMIENTO (alimenticio)
-     *      TALLE (textil)
+     *      TALLE y COLOR (textil)
      * Luego lo guardamos en la lista Articulos.
      */
-    public static void ingresarArticulo(Scanner sc, ArrayList<Articulo> articulos, ArrayList<Categoria> categorias) {
+    public static void ingresarArticulo(Scanner sc, ArrayList<Articulo> articulos, ArrayList<Categoria> categorias, ArrayList<Color> colores) {
 
         System.out.println("\n--- INGRESAR ARTÍCULO ---");
 
@@ -177,8 +199,12 @@ public class App {
             articulo = new ArticuloAlimenticio(sku, ean, nombreMayuscula, descripcion, precio, categoria, diasParaVencimiento);
         } else {
             int talle = leerEnteroNoNegativo(sc, "Ingrese el talle                   : ");
+            
+            listarColores(colores);
+            Color color = pedirColorExistente(sc, colores);
+
             // Creamos un objeto de la clase hija ArticuloTalle.
-            articulo = new ArticuloTextil(sku, ean, nombreMayuscula, descripcion, precio, categoria, talle);
+            articulo = new ArticuloTextil(sku, ean, nombreMayuscula, descripcion, precio, categoria, talle, color);
         }
 
         // Guardamos el objeto en la lista.
@@ -248,7 +274,10 @@ public class App {
      * ---------------------------------------------------------
      * Permite cambiar los datos de un artículo existente ingresando el SKU.
      */
-    public static void modificarArticuloSku(Scanner sc, ArrayList<Articulo> articulos, ArrayList<Categoria> categorias) {
+    public static void modificarArticuloSku(Scanner sc, 
+                                            ArrayList<Articulo> articulos, 
+                                            ArrayList<Categoria> categorias, 
+                                            ArrayList<Color> colores) {
 
         System.out.println("\n--- MODIFICAR ARTÍCULO ---");
 
@@ -279,7 +308,6 @@ public class App {
 
         String nuevoNombreMayuscula = nuevoNombre.trim().toUpperCase();
 
-//        String nuevaCategoria   = leerTextoNoVacio    (sc, "Ingrese la categoría del artículo  : ");
         listarCategorias(categorias);
         Categoria nuevaCategoria = pedirCategoriaExistente(sc, categorias);
 
@@ -306,12 +334,16 @@ public class App {
             alimenticio.setDiasParaVencimiento(nuevosDias);
         }
 
-        // Si el artículo real es textil, permitimos modificar el talle.
+        // Si el artículo real es textil, permitimos modificar el talle y el color
         if (articulo instanceof ArticuloTextil) {
             ArticuloTextil textil = (ArticuloTextil) articulo;
 
             int nuevoTalle = leerEnteroNoNegativo(sc, "Ingrese el talle                   : ");
+            listarColores(colores);
+            Color nuevoColor = pedirColorExistente(sc, colores);
+            
             textil.setTalle(nuevoTalle);
+            textil.setColor(nuevoColor);
         }
 
 
@@ -400,7 +432,39 @@ public class App {
                 mostrarMensajeError("la categoría no existe.");
             }
         }
-    
+
+    /*
+     * MÉTODO: listarColores
+     * --------------------------------------------------
+     * Muestra los colores disponibles.
+     */
+    public static void listarColores(ArrayList<Color> colores) {
+        System.out.println("\n--- COLORES DISPONIBLES ---");
+
+        for (Color color : colores) {
+            System.out.println(color);
+        }
+    }
+
+    /*
+     * MÉTODO: pedirColorExistente
+     * --------------------------------------------------
+     * Obliga al usuario a elegir un color válido.
+     */
+    public static Color pedirColorExistente(Scanner sc, ArrayList<Color> colores) {
+        while (true) {
+            int codigoColor = leerEntero(sc, "Ingrese el código del color       : ");
+
+            Color color = buscarColorPorCodigo(colores, codigoColor);
+
+            if (color != null) {
+                return color;
+            }
+
+            mostrarMensajeError("el color no existe.");
+        }
+    }
+
     /*
      * MÉTODO: buscarArticuloPorSku
      * ---------------------------------------------------------
@@ -450,6 +514,21 @@ public class App {
         }
         return null;
     }
+
+    /*
+     * MÉTODO: buscarColorPorCodigo
+     * --------------------------------------------------
+     * Recorre la lista de colores y devuelve el coincidente.
+     */
+        public static Color buscarColorPorCodigo(ArrayList<Color> colores, int codigo) {
+            for (Color color : colores) {
+                if (color.getCodigo() == codigo) {
+                    return color;
+                }
+            }
+            return null;
+        }
+
 
     /*
      * MÉTODO: leerEntero
